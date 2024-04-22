@@ -3,11 +3,16 @@ const validate = (schema) => async (req, res, next) => {
     const parsedBody = await schema.parseAsync(req.body);
     req.body = parsedBody;
     next();
-  } catch (err) {  
-    // console.log("error occured")
-    console.log("Error at -", err.errors[0].path[0]);
-    console.log("Error:-", err.errors[0].message);
-    res.status(401).json({ error: "Error occured" });
+  } catch (err) {
+    const status = 422;
+    const message = "fill the inputs properly"
+    const extraDetails = `${err.errors[0].message} at ${err.errors[0].path}`;
+    const error = {
+      status,
+      message,
+      extraDetails,
+    };
+    next(error)
   }
 };
 

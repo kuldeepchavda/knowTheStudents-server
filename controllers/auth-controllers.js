@@ -1,7 +1,7 @@
-const registrationData = require("../mongooseModals/registrationModal");
+const registrationData = require("../Models/user-Modal");
 const bcrypt = require("bcrypt");
 const home = async (req, res) => {
-  res.send("this is from auth yrouters");
+  res.send("this is from auth routers");
 };
 
 const registration = async (req, res) => {
@@ -11,7 +11,7 @@ const registration = async (req, res) => {
 
     const exists = await registrationData.findOne({ email });
     if (exists) {
-      res.status(403).json({ msg: "user already exists" });
+      res.status(403).json({ extraDetails: "user already exists" });
     } else {
       const hashed_password = await bcrypt.hash(password, 2);
       const uploadedData = await registrationData.create({
@@ -27,7 +27,7 @@ const registration = async (req, res) => {
         jsonWebToken: await uploadedData.createJWT_Token(),
         data: uploadedData,
       });
-    }
+    }  
   } catch (error) {
     res.status(401).json({ msg: "error occured" });
   }
@@ -35,7 +35,6 @@ const registration = async (req, res) => {
 
 const login = async (req, res) => {
   try {
-    //  res.status(200).send("done");
     const { email, password } = req.body;
     const availableData = await registrationData.findOne({ email });
     const correctPassword = await bcrypt.compare(
@@ -45,7 +44,6 @@ const login = async (req, res) => {
     if (availableData !== null) {
       if (correctPassword) {
         res.status(201).json({
-          // data: availableData,
           token: await availableData.createJWT_Token(),
           userId: availableData._id.toString(),
         });
@@ -62,14 +60,19 @@ const login = async (req, res) => {
   }
 };
 
-const user = async(req,res)=>{
+const user = async(req,res)=>{   
   try{
     const userData = req.user
     console.log("userData from userFN",userData)
-    res.status(200).json({data:userData})  
+    res.status(200).json({ userData: userData });  
   }catch(err){
     res.status(400).json({message:"error occured from user endpoint"})
   }  
+}
+
+const allUser = async(req,res)=>{
+  const response= await registrationData.find({},{password:0})
+  res.status(200).json({data:response})
 }
 module.exports = { home, registration, login,user };
 

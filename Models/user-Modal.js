@@ -31,23 +31,24 @@ const registrationSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
+  bio: { type: String, required: true },
 });
 
 // Define a method to create JWT token
 registrationSchema.methods.createJWT_Token = async function () {
   // Removed incorrect syntax
   try {
-    const jwtToken =jwt.sign(
+    const jwtToken = jwt.sign(
       {
         userId: this._id,
         email: this.email,
         isAdmin: this.isAdmin,
       },
-      "y", // Secret key for signing JWT token
+      process.env.JWT_SECRET_KEY, // Secret key for signing JWT token
       { expiresIn: "30d" }
     );
-    console.log(jwtToken)
-    return jwtToken
+    console.log(jwtToken);
+    return jwtToken;
   } catch (err) {
     console.log("Error occurred in JWT web token");
     console.log(`Error: ${err}`);
